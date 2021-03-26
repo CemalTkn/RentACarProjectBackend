@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.Constants;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using System;
@@ -16,14 +18,47 @@ namespace Business.Concrete
             _colorDal = colorDal;
         }
 
-        public List<Color> GetAll()
+        public IResult Add(Color color)
         {
-            return _colorDal.GetAll();
+            if (color.ColorName.Length<2)
+            {
+                return new ErrorResult(Messages.ColorIdInvalid);
+            }
+            _colorDal.Add(color);
+            return new SuccessResult(Messages.ColorIsAdded);
         }
 
-        public Color GetById(int colorId)
+        public IResult Delete(Color color)
         {
-            return _colorDal.Get(c => c.ColorId == colorId);
+            _colorDal.Delete(color);
+            return new SuccessResult(Messages.ColorIsDeleted);
+        }
+
+        public IDataResult<List<Color>> GetAll()
+        {
+            if (DateTime.Now.Hour==23)
+            {
+                return new ErrorDataResult<List<Color>>(Messages.MaintenanceTime);
+            }
+            else
+            {
+                return new SuccessDataResult<List<Color>>(_colorDal.GetAll(), Messages.ColorLİsted);
+            }
+        }
+
+        public IDataResult<Color> GetById(int colorId)
+        {
+            return new SuccessDataResult<Color>(_colorDal.Get(co => co.ColorId == colorId));
+        }
+
+        public IResult Update(Color color)
+        {
+            if (color.ColorId!=color.ColorId)
+            {
+                return new ErrorResult(Messages.ColorIdInvalid);
+            }
+            _colorDal.Update(color);
+            return new SuccessResult(Messages.ColorIsUpdated);
         }
     }
 }
