@@ -17,7 +17,7 @@ namespace Business.Concrete
 {
     public class CarManager : ICarService
     {
-        readonly ICarDal _carDal;
+        ICarDal _carDal;
 
         public CarManager(ICarDal carDal)
         {
@@ -28,11 +28,9 @@ namespace Business.Concrete
         [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
-            _carDal.Add(car);
-            return new SuccessResult(Messages.CarAdded);
+                _carDal.Add(car);
+                return new SuccessResult(Messages.CarAdded);
         }
-
-
 
         public IResult Delete(Car car)
         {
