@@ -25,13 +25,31 @@ namespace Business.Concrete
         }
 
 
+
+
+
+
         [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
-                _carDal.Add(car);
-                return new SuccessResult(Messages.CarAdded);
+            if (CheckIfCarCountOfRentalCorrect(car.Id).Success)
+            {
+                if (CheckIfCarNameExists(car.Description).Success)
+                {
+                    return new SuccessResult(Messages.CarCountOfRentalError);
+                }
+            }
+            return new ErrorResult();
         }
 
+
+
+
+
+
+
+
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Delete(Car car)
         {
             _carDal.Delete(car);
@@ -69,10 +87,42 @@ namespace Business.Concrete
             return new SuccessDataResult<List<Car>>(_carDal.GetAll(c => c.ColorId == colorId));
         }
 
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Update(Car car)
         {
             _carDal.Update(car);
             return new SuccessResult(Messages.CarAdded);
         }
+
+
+
+
+
+
+
+
+
+
+        private IResult CheckIfCarCountOfRentalCorrect(int rentalId)
+        {
+            var result = _carDal.GetAll(c => c.Id == rentalId).Count;
+            if (result>=15)
+            {
+                return new ErrorResult(Messages.CarCountOfRentalError);
+            }
+            return new SuccessResult();
+        }
+
+
+        private IResult CheckIfCarNameExists(string description)
+        {
+            var result = _carDal.GetAll(c => c.Description == description).Any();
+            if (result)
+            {
+                return new ErrorResult(Messages.CarCountOfRentalError);
+            }
+            return new SuccessResult();
+        }
     }
+
 }

@@ -31,5 +31,6 @@ namespace Business.Constants
         public static string UserAdded = "Kullanıcı eklenmiştir";
         public static string RentalAdd="Araç kiralama eklenmiştir";
         public static string RentalListed = "Kiralam listesine hoşgeldiniz";
+        internal static string CarCountOfRentalError;
     }
 }
