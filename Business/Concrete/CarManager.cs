@@ -1,8 +1,10 @@
-﻿using Business.Abstract;
+﻿
+using Business.Abstract;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
@@ -18,6 +20,7 @@ namespace Business.Concrete
     public class CarManager : ICarService
     {
         ICarDal _carDal;
+        
 
         public CarManager(ICarDal carDal)
         {
@@ -32,18 +35,21 @@ namespace Business.Concrete
         [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
-            if (CheckIfCarCountOfRentalCorrect(car.Id).Success)
+
+            //İş Kuralları; Kurallar Şu An Geçersiz
+            IResult result=  BusinessRules.Run(CheckIfCarNameExists(car.Description),
+                CheckIfCarCountOfRentalCorrect(car.Id));
+
+            if (result !=null)
             {
-                if (CheckIfCarNameExists(car.Description).Success)
-                {
-                    return new SuccessResult(Messages.CarCountOfRentalError);
-                }
+                return result;
             }
-            return new ErrorResult();
+
+            _carDal.Add(car);
+
+            return new SuccessResult(Messages.CarAdded);
+
         }
-
-
-
 
 
 
@@ -101,7 +107,7 @@ namespace Business.Concrete
 
 
 
-
+        //İş Kuralları Kurallar Şu Anlık Yanlış
 
         private IResult CheckIfCarCountOfRentalCorrect(int rentalId)
         {
